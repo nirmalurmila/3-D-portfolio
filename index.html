@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="green">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urmila Nirmal | Learning in Progress</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    [data-theme="green"] {
+      --bg: #060e06; --bg2: #0a140a; --card: #0f1a0f;
+      --accent: #22c55e; --accent-dim: rgba(34,197,94,0.12); --accent-glow: rgba(34,197,94,0.3);
+      --white: #f0faf0; --muted: #6b9e7a; --border: rgba(34,197,94,0.18); --nav-bg: rgba(6,14,6,0.8);
+    }
+    [data-theme="purple"] {
+      --bg: #07060e; --bg2: #0d0b16; --card: #120f1e;
+      --accent: #a78bfa; --accent-dim: rgba(167,139,250,0.12); --accent-glow: rgba(167,139,250,0.3);
+      --white: #f5f0ff; --muted: #8b7ab8; --border: rgba(167,139,250,0.18); --nav-bg: rgba(7,6,14,0.8);
+    }
+    [data-theme="blue"] {
+      --bg: #03090f; --bg2: #060e17; --card: #0a1520;
+      --accent: #38bdf8; --accent-dim: rgba(56,189,248,0.12); --accent-glow: rgba(56,189,248,0.3);
+      --white: #f0f9ff; --muted: #5a9ab8; --border: rgba(56,189,248,0.18); --nav-bg: rgba(3,9,15,0.8);
+    }
+    [data-theme="amber"] {
+      --bg: #0e0900; --bg2: #160d00; --card: #1e1200;
+      --accent: #f59e0b; --accent-dim: rgba(245,158,11,0.12); --accent-glow: rgba(245,158,11,0.3);
+      --white: #fffbf0; --muted: #b89050; --border: rgba(245,158,11,0.18); --nav-bg: rgba(14,9,0,0.8);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* ─── CANVAS ─── */
+    #hero-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.5s;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ─── THEME SWITCHER ─── */
+    .theme-switcher {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .theme-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .theme-dot:hover { transform: scale(1.2); }
+    .theme-dot.active { border-color: var(--white); transform: scale(1.15); }
+
+    .theme-dot[data-t="green"]  { background: #22c55e; }
+    .theme-dot[data-t="purple"] { background: #a78bfa; }
+    .theme-dot[data-t="blue"]   { background: #38bdf8; }
+    .theme-dot[data-t="amber"]  { background: #f59e0b; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 8rem 2rem 5rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--accent-dim);
+      animation: fadeUp 1s ease both;
+    }
+    .hero-label::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.4; transform:scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 1s ease 0.1s both;
+    }
+    h1 .name {
+      display: block;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.75;
+      font-weight: 300;
+      animation: fadeUp 1s ease 0.2s both;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 1s ease 0.3s both;
+    }
+    .tag {
+      padding: 0.45rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--accent-dim);
+      transition: all 0.3s;
+    }
+    .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Hero CTA — stacked to avoid overlap on small screens */
+    .hero-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      animation: fadeUp 1s ease 0.4s both;
+    }
+
+    @media (min-width: 480px) {
+      .hero-cta { flex-direction: row; justify-content: center; }
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      border-radius: 100px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── SCROLL INDICATOR ─── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      animation: fadeUp 1s ease 0.6s both;
+    }
+    .scroll-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollDown 2s ease infinite;
+    }
+    @keyframes scrollDown {
+      0% { transform:scaleY(0); transform-origin:top; }
+      50% { transform:scaleY(1); transform-origin:top; }
+      51% { transform:scaleY(1); transform-origin:bottom; }
+      100% { transform:scaleY(0); transform-origin:bottom; }
+    }
+
+    /* ─── SHARED SECTION STYLES ─── */
+    .section-wrap {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+    .section-sub {
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.75;
+      margin-bottom: 3rem;
+      font-size: 0.95rem;
+    }
+
+    /* ─── STORY ─── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .story-text { color: var(--muted); line-height: 1.9; font-size: 0.95rem; }
+    .story-text p { margin-bottom: 1.25rem; }
+    .story-text strong { color: var(--white); font-weight: 500; }
+    .story-quote {
+      border-left: 2px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      background: var(--accent-dim);
+      border-radius: 0 12px 12px 0;
+      font-style: italic;
+      color: var(--white);
+      line-height: 1.8;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      backdrop-filter: blur(8px);
+    }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    /* ─── PILLARS ─── */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .pillar-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s;
+      backdrop-filter: blur(12px);
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .pillar-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px var(--accent-dim);
+    }
+    .pillar-card:hover::before { opacity: 1; }
+    .pillar-icon { font-size: 1.75rem; margin-bottom: 1rem; }
+    .pillar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+    .pillar-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .pillar-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .pillar-status::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+    .timeline-item {
+      position: relative;
+      padding: 0 0 3rem 2rem;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: all 0.6s ease;
+    }
+    .timeline-item.revealed { opacity:1; transform:translateX(0); }
+    .timeline-dot {
+      position: absolute;
+      left: -0.4rem; top: 0.3rem;
+      width: 0.75rem; height: 0.75rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .timeline-year {
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+    .timeline-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .timeline-desc {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.75;
+      max-width: 500px;
+    }
+
+    /* ─── CONNECT ─── */
+    .connect-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+    .connect-card::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .connect-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .connect-card p {
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      position: relative;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .connect-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(30px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.7s ease;
+    }
+    .reveal.revealed { opacity:1; transform:translateY(0); }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-links { display: none; }
+      .story-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .connect-card { padding: 2.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Urmila<span>.</span></a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#story">Story</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#journey">Journey</a></li>
+      <li><a href="#connect">Connect</a></li>
+    </ul>
+    <div class="theme-switcher">
+      <div class="theme-dot active" data-t="green"  title="Forest"></div>
+      <div class="theme-dot"        data-t="purple" title="Cosmic"></div>
+      <div class="theme-dot"        data-t="blue"   title="Ocean"></div>
+      <div class="theme-dot"        data-t="amber"  title="Ember"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-label">Learning in public · Every step documented</div>
+    <h1>
+      Welcome.
+      <span class="name">My Learning Journey.</span>
+    </h1>
+    <p class="hero-sub">
+      Starting from zero. Learning AI, coding, and math — and documenting every step publicly along the way.
+    </p>
+    <div class="hero-tags">
+      <span class="tag">🤖 AI Tools</span>
+      <span class="tag">💻 Coding</span>
+      <span class="tag">🔢 Mathematics</span>
+      <span class="tag">🧠 Polymath Journey</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#story" class="btn btn-primary">See the Journey</a>
+      <a href="https://instagram.com/dailylearninglog" target="_blank" class="btn btn-outline">@dailylearninglog</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="section-wrap" id="story">
+  <div class="section-label reveal">Who I Am</div>
+  <div class="story-grid">
+    <div>
+      <h2 class="section-title reveal">Learning everything.<br>From scratch.</h2>
+      <div class="story-text reveal">
+        <p>I'm a student who decided to <strong>stop waiting to feel ready</strong> and start building instead. No computer science degree. No technical background. Just curiosity and willingness to figure things out publicly.</p>
+        <p>I'm learning AI tools, coding, and mathematics — not because someone told me to, but because I genuinely believe this combination of skills changes what's possible.</p>
+        <p>Everything I learn gets documented. The confusion, the small wins, the moments something finally clicks. All of it.</p>
+        <div class="story-quote">
+          "Every expert was once a beginner. The only difference is they didn't stop."
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="stats-grid reveal">
+        <div class="stat-card">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Core skill pillars</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0→</div>
+          <div class="stat-label">Starting point</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Curiosity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">📖</div>
+          <div class="stat-label">Daily learning</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="section-wrap" id="skills">
+  <div class="section-label reveal">What I'm Building</div>
+  <h2 class="section-title reveal">Five skill pillars.<br>One curious mind.</h2>
+  <p class="section-sub reveal">Not learning randomly. Stacking intentionally. Each skill compounds the others.</p>
+
+  <div class="pillars-grid">
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">🤖</div>
+      <div class="pillar-title">AI Tools</div>
+      <div class="pillar-desc">Deliberate fluency — prompting with precision, building workflows, using AI as a thinking partner not an answer machine.</div>
+      <span class="pillar-status">Actively exploring</span>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">💻</div>
+      <div class="pillar-title">Coding</div>
+      <div class="pillar-desc">Python from zero. HTML/CSS live. Building real things with vibe coding. Shipping ugly projects that actually exist.</div>
+      <span class="pillar-status">First projects live</span>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">🔢</div>
+      <div class="pillar-title">Mathematics</div>
+      <div class="pillar-desc">Probability, logic, statistics. Math as a reasoning system — not a school subject.</div>
+      <span class="pillar-status">Preparing for exam</span>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">⚡</div>
+      <div class="pillar-title">Productivity</div>
+      <div class="pillar-desc">Systems that fit ADHD-like patterns. Slow consistency over intense bursts. Building habits that don't break.</div>
+      <span class="pillar-status">Figuring it out</span>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">🎬</div>
+      <div class="pillar-title">Content Creation</div>
+      <div class="pillar-desc">Documenting the journey publicly on Instagram. Kinetic typography reels, carousels, honest text posts.</div>
+      <span class="pillar-status">Posting consistently</span>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNEY -->
+<div class="section-wrap" id="journey">
+  <div class="section-label reveal">The Path</div>
+  <h2 class="section-title reveal">Foundation first.<br>Then mastery.</h2>
+  <p class="section-sub reveal">Not rushing. Building the right way — one layer at a time.</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Stage 1 — Exploration</div>
+      <div class="timeline-title">Discovering the Tools</div>
+      <div class="timeline-desc">Learning what AI tools exist, how they work, and what's actually possible for a complete beginner. Testing everything. Keeping what works.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Stage 2 — Foundation</div>
+      <div class="timeline-title">Building Core Skills</div>
+      <div class="timeline-desc">Going deeper on Python, mathematical thinking, and deliberate AI prompting. Moving from surface-level use to genuine understanding.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Stage 3 — Application</div>
+      <div class="timeline-title">Shipping Real Projects</div>
+      <div class="timeline-desc">Taking everything learned and building something real. Ugly first version. Then better. Learning by doing — not just by watching.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Stage 4 — Mastery</div>
+      <div class="timeline-title">Connecting the Dots</div>
+      <div class="timeline-desc">When AI judgment, coding ability, and mathematical thinking start compounding together. This is where the real leverage begins.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Ongoing</div>
+      <div class="timeline-title">Keep Stacking</div>
+      <div class="timeline-desc">There's no finish line. Each skill unlocks the next one. The goal is to keep going — and keep documenting everything along the way.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECT -->
+<div class="section-wrap" id="connect">
+  <div class="connect-card reveal">
+    <h2>Follow the experiment.</h2>
+    <p>Day 1 to wherever this goes — documented publicly. Join if you're also figuring it out.</p>
+    <div class="connect-buttons">
+      <a href="https://instagram.com/dailylearninglog" target="_blank" class="btn btn-primary">📸 @dailylearninglog</a>
+      <a href="https://github.com/nirmalurmila" target="_blank" class="btn btn-outline">⌨️ GitHub</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Urmila Nirmal · Learning in public · Made with curiosity and Claude 🌱</p>
+</footer>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── THEME SWITCHER ───
+const dots = document.querySelectorAll('.theme-dot');
+const html = document.documentElement;
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    dots.forEach(d => d.classList.remove('active'));
+    dot.classList.add('active');
+    html.setAttribute('data-theme', dot.dataset.t);
+    updateAccentColor();
+  });
+});
+
+const themeColors = {
+  green:  0x22c55e,
+  purple: 0xa78bfa,
+  blue:   0x38bdf8,
+  amber:  0xf59e0b,
+};
+
+function getCurrentAccent() {
+  return themeColors[html.getAttribute('data-theme')] || themeColors.green;
+}
+
+// ─── THREE.JS — WIREFRAME ICOSPHERE + FLOATING RINGS ───
+const canvas = document.getElementById('hero-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 0, 6);
+
+// Main icosphere wireframe
+const icoGeo = new THREE.IcosahedronGeometry(1.8, 3);
+const icoMat = new THREE.MeshBasicMaterial({
+  color: getCurrentAccent(),
+  wireframe: true,
+  transparent: true,
+  opacity: 0.18,
+});
+const ico = new THREE.Mesh(icoGeo, icoMat);
+scene.add(ico);
+
+// Inner solid icosphere — very faint glow
+const innerGeo = new THREE.IcosahedronGeometry(1.6, 2);
+const innerMat = new THREE.MeshBasicMaterial({
+  color: getCurrentAccent(),
+  wireframe: true,
+  transparent: true,
+  opacity: 0.06,
+});
+const inner = new THREE.Mesh(innerGeo, innerMat);
+scene.add(inner);
+
+// Outer ring
+const ring1Geo = new THREE.TorusGeometry(2.6, 0.004, 2, 120);
+const ringMat = new THREE.MeshBasicMaterial({
+  color: getCurrentAccent(),
+  transparent: true,
+  opacity: 0.25,
+});
+const ring1 = new THREE.Mesh(ring1Geo, ringMat);
+ring1.rotation.x = Math.PI / 2;
+scene.add(ring1);
+
+// Second tilted ring
+const ring2Geo = new THREE.TorusGeometry(3.2, 0.003, 2, 120);
+const ring2Mat = new THREE.MeshBasicMaterial({
+  color: getCurrentAccent(),
+  transparent: true,
+  opacity: 0.12,
+});
+const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+ring2.rotation.x = Math.PI / 3;
+ring2.rotation.z = Math.PI / 5;
+scene.add(ring2);
+
+// Small orbiting dot
+const dotGeo = new THREE.SphereGeometry(0.05, 8, 8);
+const dotMat = new THREE.MeshBasicMaterial({ color: getCurrentAccent() });
+const orbitDot = new THREE.Mesh(dotGeo, dotMat);
+scene.add(orbitDot);
+
+function updateAccentColor() {
+  const c = getCurrentAccent();
+  icoMat.color.setHex(c);
+  innerMat.color.setHex(c);
+  ringMat.color.setHex(c);
+  ring2Mat.color.setHex(c);
+  dotMat.color.setHex(c);
+}
+
+// Mouse
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+window.addEventListener('mousemove', e => {
+  mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouse.ty = -(e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// Resize
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+// Animate
+const clock = new THREE.Clock();
+(function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  mouse.x += (mouse.tx - mouse.x) * 0.04;
+  mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+  ico.rotation.x = t * 0.08 + mouse.y * 0.3;
+  ico.rotation.y = t * 0.12 + mouse.x * 0.3;
+
+  inner.rotation.x = -t * 0.06;
+  inner.rotation.y = t * 0.1;
+
+  ring1.rotation.z = t * 0.05;
+  ring2.rotation.y = t * 0.04;
+
+  // Orbiting dot around the sphere
+  orbitDot.position.x = Math.cos(t * 0.6) * 2.6;
+  orbitDot.position.z = Math.sin(t * 0.6) * 2.6;
+  orbitDot.position.y = Math.sin(t * 0.3) * 0.8;
+
+  renderer.render(scene, camera);
+})();
+
+// ─── SCROLL REVEAL ───
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add('revealed'), i * 80);
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal, .timeline-item').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
